@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+            perspective: 1000px;
+        }
+
+        .dice {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+
+        .dice-face {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 骰子六个面的位置 */
+        .dice-face.front { transform: rotateY(0deg) translateZ(40px); }
+        .dice-face.back { transform: rotateY(180deg) translateZ(40px); }
+        .dice-face.right { transform: rotateY(90deg) translateZ(40px); }
+        .dice-face.left { transform: rotateY(-90deg) translateZ(40px); }
+        .dice-face.top { transform: rotateX(90deg) translateZ(40px); }
+        .dice-face.bottom { transform: rotateX(-90deg) translateZ(40px); }
+
+        /* 骰子点数样式 */
+        .dice-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        /* 重新定义每个面的布局 */
+        .one {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .two {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: row;
+            padding: 0 8px;
+        }
+
+        .two .dot:nth-child(2) {
+            transform: rotate(180deg);
+        }
+
+        .three {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .three .dot:nth-child(1) {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+        }
+
+        .three .dot:nth-child(2) {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .three .dot:nth-child(3) {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+        }
+
+        .four {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            justify-items: center;
+            align-items: center;
+            padding: 8px;
+            gap: 16px;
+        }
+
+        .five {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            justify-items: center;
+            align-items: center;
+            padding: 8px;
+            gap: 16px;
+            position: relative;
+        }
+
+        .five .dot:nth-child(5) {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            grid-column: 1 / 3;
+            grid-row: 1 / 3;
+        }
+
+        .six {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            justify-items: center;
+            align-items: center;
+            padding: 6px 12px;
+            gap: 8px;
+        }
+
+        .dot {
+            background: #1a237e;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 1点面 - 大红点 */
+        .one .dot {
+            width: 16px;
+            height: 16px;
+            background: #d32f2f;
+        }
+
+        /* 2点面 - 中等深蓝点 */
+        .two .dot {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* 3点面 - 中等深蓝点 */
+        .three .dot {
+            width: 10px;
+            height: 10px;
+        }
+
+        /* 4点面 - 较小深蓝点 */
+        .four .dot {
+            width: 9px;
+            height: 9px;
+        }
+
+        /* 5点面 - 较小深蓝点 */
+        .five .dot {
+            width: 8px;
+            height: 8px;
+        }
+
+        /* 6点面 - 最小深蓝点 */
+        .six .dot {
+            width: 7px;
+            height: 7px;
+        }
+
+        /* 移除旧的grid-area布局，因为我们现在使用新的布局方式 */
+
+        /* 三个骰子的不同步动画 */
+        .dice.rolling1Final { 
+            animation: rollDice1Final 2.5s ease-out forwards; 
+        }
+
+        .dice.rolling2Final { 
+            animation: rollDice2Final 3s ease-out forwards; 
+        }
+
+        .dice.rolling3Final { 
+            animation: rollDice3Final 3.5s ease-out forwards; 
+        }
+
+        .roll-button {
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .roll-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .roll-button:active {
+            transform: translateY(0);
+        }
+
+        .roll-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .result h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #ffd700;
+        }
+
+        .result-numbers {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .result-number {
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .final-result {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-top: 1rem;
+        }
+
+        .calculation-formula {
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .instructions {
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        /* 设置按钮样式 */
+        .settings-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            z-index: 100;
+        }
+
+        .settings-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .settings-button:active {
+            transform: translateY(0);
+        }
+
+        /* 设置弹窗样式 */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-content {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalAppear 0.3s ease-out;
+            color: #333;
+        }
+
+        .settings-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .probability-group {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .probability-label {
+            font-weight: bold;
+            min-width: 60px;
+            color: #555;
+        }
+
+        .probability-input {
+            flex: 1;
+            margin: 0 10px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .probability-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .probability-percent {
+            color: #888;
+            min-width: 20px;
+        }
+
+        .calculated-f {
+            background-color: #f5f5f5;
+            border: 2px solid #ccc;
+            cursor: not-allowed;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .save-button, .cancel-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .save-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .cancel-button {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .cancel-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.6);
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* 图片弹窗样式 */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            height: 95vh;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalAppear 0.3s ease-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .close-button {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: #ff4757;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
+            transition: all 0.2s ease;
+        }
+
+        .close-button:hover {
+            background: #ff3742;
+            transform: scale(1.1);
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: calc(95vh - 180px);
+            width: auto;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+            object-fit: contain;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* 等级铭牌样式 */
+        .grade-plate {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 80px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            animation: plateAppear 0.6s ease-out 0.3s both;
+            border: 3px solid;
+            position: absolute;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grade-plate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .grade-plate:hover::before {
+            left: 100%;
+        }
+
+        /* A+级 - 彩虹渐变，梦幻色彩 */
+        .grade-a-plus {
+            background: linear-gradient(135deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff);
+            background-size: 300% 300%;
+            animation: rainbowShift 3s ease-in-out infinite;
+            color: white;
+            border-color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(255, 107, 107, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* PA级 - 至尊金色，富丽堂皇 */
+        .grade-pa {
+            background: linear-gradient(135deg, #ffd700, #ffed4e, #ffc107, #ff8f00);
+            color: #8b4513;
+            border-color: #ff8f00;
+            text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(255, 215, 0, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.6),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* A级 - 银色优雅，简洁大方 */
+        .grade-a {
+            background: linear-gradient(135deg, #e8e8e8, #ffffff, #d1d1d1, #c0c0c0);
+            color: #333333;
+            border-color: #999999;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 
+                0 8px 25px rgba(192, 192, 192, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.8),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* B级 - 青铜色泽，稳重可靠 */
+        .grade-b {
+            background: linear-gradient(135deg, #cd7f32, #d4af37, #b87333, #8b7355);
+            color: #fffaf0;
+            border-color: #8b7355;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+            box-shadow: 
+                0 8px 25px rgba(205, 127, 50, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        /* C级 - 绿色清新，自然和谐 */
+        .grade-c {
+            background: linear-gradient(135deg, #4caf50, #81c784, #66bb6a, #2e7d32);
+            color: white;
+            border-color: #2e7d32;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(76, 175, 80, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* D级 - 蓝色冷静，朴素实用 */
+        .grade-d {
+            background: linear-gradient(135deg, #2196f3, #64b5f6, #42a5f5, #1565c0);
+            color: white;
+            border-color: #1565c0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 8px 25px rgba(33, 150, 243, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* F级 - 灰色暗淡，低调简约 */
+        .grade-f {
+            background: linear-gradient(135deg, #757575, #9e9e9e, #616161, #424242);
+            color: #e0e0e0;
+            border-color: #424242;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            box-shadow: 
+                0 8px 25px rgba(117, 117, 117, 0.4),
+                inset 0 2px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes plateAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0) scale(1);
+            }
+        }
+
+        @keyframes rainbowShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 设置按钮 -->
+    <button class="settings-button" onclick="openSettingsModal()">⚙️ 设置</button>
+    
+    <div class="container">
+        <h1>🎲 抽奖 🎲</h1>
+        
+        <div class="instructions">
+            <p>点击"开始"按钮投掷骰子</p>
+        </div>
+
+        <div class="dice-container">
+            <div class="dice" id="dice1">
+                <div class="dice-face front">
+                    <div class="dice-dots one"><div class="dot"></div></div>
+                </div>
+                <div class="dice-face back">
+                    <div class="dice-dots six">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face right">
+                    <div class="dice-dots two">
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face left">
+                    <div class="dice-dots five">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face top">
+                    <div class="dice-dots three">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face bottom">
+                    <div class="dice-dots four">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dice" id="dice2">
+                <div class="dice-face front">
+                    <div class="dice-dots one"><div class="dot"></div></div>
+                </div>
+                <div class="dice-face back">
+                    <div class="dice-dots six">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face right">
+                    <div class="dice-dots two">
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face left">
+                    <div class="dice-dots five">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face top">
+                    <div class="dice-dots three">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face bottom">
+                    <div class="dice-dots four">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dice" id="dice3">
+                <div class="dice-face front">
+                    <div class="dice-dots one"><div class="dot"></div></div>
+                </div>
+                <div class="dice-face back">
+                    <div class="dice-dots six">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face right">
+                    <div class="dice-dots two">
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face left">
+                    <div class="dice-dots five">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face top">
+                    <div class="dice-dots three">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                </div>
+                <div class="dice-face bottom">
+                    <div class="dice-dots four">
+                        <div class="dot"></div><div class="dot"></div>
+                        <div class="dot"></div><div class="dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="roll-button" id="rollButton" onclick="rollDice()">
+            开始投掷
+        </button>
+
+        <div class="result" id="result" style="display: none;">
+            <div class="result-numbers">
+                <div class="result-number" id="result1">-</div>
+                <div class="result-number" id="result2">-</div>
+                <div class="result-number" id="result3">-</div>
+            </div>
+            <div class="calculation-formula" id="calculationFormula"></div>
+            <div class="final-result" id="finalResult">
+                -
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片弹窗 -->
+    <div class="image-modal" id="imageModal" style="display: none;">
+        <div class="modal-overlay" onclick="closeImageModal()"></div>
+        <div class="modal-content">
+            <button class="close-button" onclick="closeImageModal()">×</button>
+            <div class="image-number" id="imageNumber">#
+            </div>
+            <img id="modalImage" src="" alt="抽奖结果图片">
+            <div class="grade-plate" id="gradePlate">A+</div>
+        </div>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div class="settings-modal" id="settingsModal" style="display: none;">
+        <div class="modal-overlay" onclick="closeSettingsModal()"></div>
+        <div class="settings-content">
+            <button class="close-button" onclick="closeSettingsModal()">×</button>
+            <div class="settings-title">设置</div>
+            
+            <div class="probability-group">
+                <label class="probability-label">A+:</label>
+                <input type="number" class="probability-input" id="prob-a-plus" min="0" max="1" step="0.001" placeholder="0.01">
+                
+            </div>
+            
+            <div class="probability-group">
+                <label class="probability-label">PA:</label>
+                <input type="number" class="probability-input" id="prob-pa" min="0" max="1" step="0.001" placeholder="0.05">
+                
+            </div>
+            
+            <div class="probability-group">
+                <label class="probability-label">A:</label>
+                <input type="number" class="probability-input" id="prob-a" min="0" max="1" step="0.001" placeholder="0.55">
+                
+            </div>
+            
+            <div class="probability-group">
+                <label class="probability-label">B:</label>
+                <input type="number" class="probability-input" id="prob-b" min="0" max="1" step="0.001" placeholder="0.114514">
+                
+            </div>
+            
+            <div class="probability-group">
+                <label class="probability-label">C:</label>
+                <input type="number" class="probability-input" id="prob-c" min="0" max="1" step="0.001" placeholder="0.191981">
+                
+            </div>
+            
+            <div class="probability-group">
+                <label class="probability-label">D:</label>
+                <input type="number" class="probability-input" id="prob-d" min="0" max="1" step="0.001" placeholder="0.073505">
+                
+            </div>
+            
+            <div class="probability-group">
+                <label class="probability-label">F:</label>
+                <input type="number" class="probability-input calculated-f" id="prob-f" readonly placeholder="自动计算">
+                
+            </div>
+            
+            <div class="error-message" id="errorMessage" style="display: none;"></div>
+            
+            <div class="buttons-container">
+                <button class="save-button" onclick="saveProbabilities()">保存</button>
+                <button class="cancel-button" onclick="closeSettingsModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRolling = false;
+
+        // 全局概率配置
+        let globalProbabilities = {
+            'A+': 0.01,
+            'PA': 0.05,
+            'A': 0.55, 
+            'B': 0.114514,
+            'C': 0.191981,
+            'D': 0.073505,
+            'F': 0.01
+        };
+
+        // 图片编号列表（固定不变）
+        const cardLists = {
+            'A+': [128],
+            'PA': [8,20,25,33,41,45,49,52,53,69,70,86,89,95,109,112,113,114,119],
+            'A': [2,4,5,6,7,10,12,13,14,15,16,17,18,19,22,24,27,30,32,34,35,36,37,39,40,42,43,44,48,50,54,55,56,58,59,61,62,63,64,65,66,68,71,72,73,74,75,76,77,79,80,83,84,85,92,93,94,96,97,99,101,102,103,104,105,106,107,108,110,115,116,118,120,121,122,123,125,126,127],
+            'B': [1,11,21,23,26,28,31,46,60,67,81,82,87,100,111],
+            'C': [29,38,47,78,98],
+            'D': [3,9,51,57,88,90,117,124],
+            'F': [91]
+        };
+
+        // 根据图片编号获取等级
+        function getGradeByImageNumber(imageNumber) {
+            for (const grade in cardLists) {
+                if (cardLists[grade].includes(imageNumber)) {
+                    return grade;
+                }
+            }
+            return 'F'; // 默认返回F级
+        }
+
+        // 打开设置弹窗
+        function openSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            
+            // 填入当前概率值
+            document.getElementById('prob-a-plus').value = globalProbabilities['A+'];
+            document.getElementById('prob-pa').value = globalProbabilities['PA'];
+            document.getElementById('prob-a').value = globalProbabilities['A'];
+            document.getElementById('prob-b').value = globalProbabilities['B'];
+            document.getElementById('prob-c').value = globalProbabilities['C'];
+            document.getElementById('prob-d').value = globalProbabilities['D'];
+            
+            // 计算并显示F级概率
+            updateFProbability();
+            
+            // 显示弹窗
+            modal.style.display = 'flex';
+            
+            // 添加输入监听器
+            addInputListeners();
+        }
+
+        // 关闭设置弹窗
+        function closeSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            const errorMessage = document.getElementById('errorMessage');
+            modal.style.display = 'none';
+            errorMessage.style.display = 'none';
+        }
+
+        // 添加输入监听器
+        function addInputListeners() {
+            const inputs = ['prob-a-plus', 'prob-pa', 'prob-a', 'prob-b', 'prob-c', 'prob-d'];
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                input.addEventListener('input', updateFProbability);
+            });
+        }
+
+        // 更新F级概率显示
+        function updateFProbability() {
+            const aPlusValue = parseFloat(document.getElementById('prob-a-plus').value) || 0;
+            const paValue = parseFloat(document.getElementById('prob-pa').value) || 0;
+            const aValue = parseFloat(document.getElementById('prob-a').value) || 0;
+            const bValue = parseFloat(document.getElementById('prob-b').value) || 0;
+            const cValue = parseFloat(document.getElementById('prob-c').value) || 0;
+            const dValue = parseFloat(document.getElementById('prob-d').value) || 0;
+            
+            const fValue = 1 - (aPlusValue + paValue + aValue + bValue + cValue + dValue);
+            document.getElementById('prob-f').value = fValue.toFixed(6);
+        }
+
+        // 保存概率设置
+        function saveProbabilities() {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'none';
+            
+            try {
+                // 获取输入值
+                const aPlusValue = parseFloat(document.getElementById('prob-a-plus').value);
+                const paValue = parseFloat(document.getElementById('prob-pa').value);
+                const aValue = parseFloat(document.getElementById('prob-a').value);
+                const bValue = parseFloat(document.getElementById('prob-b').value);
+                const cValue = parseFloat(document.getElementById('prob-c').value);
+                const dValue = parseFloat(document.getElementById('prob-d').value);
+                
+                // 验证输入
+                const values = [aPlusValue, paValue, aValue, bValue, cValue, dValue];
+                const labels = ['A+', 'PA', 'A', 'B', 'C', 'D'];
+                
+                // 检查是否所有值都是有效数字
+                for (let i = 0; i < values.length; i++) {
+                    if (isNaN(values[i])) {
+                        throw new Error(`${labels[i]} 等级的概率必须是数字`);
+                    }
+                    if (values[i] < 0 || values[i] > 1) {
+                        throw new Error(`${labels[i]} 等级的概率必须在 0-1 之间`);
+                    }
+                }
+                
+                // 计算F级概率
+                const fValue = 1 - (aPlusValue + paValue + aValue + bValue + cValue + dValue);
+                
+                if (fValue < 0) {
+                    throw new Error('F等级概率不能为负数，请调整其他等级的概率');
+                }
+                
+                if (fValue > 1) {
+                    throw new Error('概率总和超过1，请调整其他等级的概率');
+                }
+                
+                // 保存新的概率配置
+                globalProbabilities = {
+                    'A+': aPlusValue,
+                    'PA': paValue,
+                    'A': aValue,
+                    'B': bValue,
+                    'C': cValue,
+                    'D': dValue,
+                    'F': fValue
+                };
+                
+                // 关闭弹窗
+                closeSettingsModal();
+                
+                // 显示成功消息
+                alert('概率设置已保存！');
+                
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // 显示图片弹窗
+        function showImageModal(imageNumber) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const imageNumberElement = document.getElementById('imageNumber');
+            const gradePlate = document.getElementById('gradePlate');
+            
+            // 更新图片编号显示
+            imageNumberElement.textContent = `#${imageNumber}`;
+            
+            // 获取并显示等级铭牌
+            const grade = getGradeByImageNumber(imageNumber);
+            gradePlate.textContent = grade;
+            gradePlate.className = `grade-plate grade-${grade.toLowerCase().replace('+', '-plus')}`;
+            
+            modalImage.src = `pages/${imageNumber}.jpg`;
+            modalImage.onerror = function() {
+                console.error(`无法加载图片: pages/${imageNumber}.jpg`);
+                modalImage.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjEwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj7lm77niYfplqLlpLHotKU8L3RleHQ+PC9zdmc+';
+            };
+            
+            modal.style.display = 'flex';
+        }
+
+        // 关闭图片弹窗
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        // 骰子旋转到对应面的角度
+        const diceRotations = {
+            1: { x: 0, y: 0 },      // 前面
+            2: { x: 0, y: -90 },    // 右面
+            3: { x: -90, y: 0 },    // 上面
+            4: { x: 90, y: 0 },     // 下面
+            5: { x: 0, y: 90 },     // 左面
+            6: { x: 0, y: 180 }     // 后面
+        };
+
+        // 根据角度反向计算显示的面
+        function getVisibleFace(rotX, rotY) {
+            // 将角度标准化到0-359范围
+            const normalizeAngle = (angle) => ((angle % 360) + 360) % 360;
+            const x = normalizeAngle(rotX);
+            const y = normalizeAngle(rotY);
+            
+            // 检查每个面的角度匹配
+            if (Math.abs(x - 0) < 45 && Math.abs(y - 0) < 45) return 1;      // 前面
+            if (Math.abs(x - 0) < 45 && Math.abs(y - 270) < 45) return 2;    // 右面 (-90 = 270)
+            if (Math.abs(x - 270) < 45 && Math.abs(y - 0) < 45) return 3;    // 上面 (-90 = 270)
+            if (Math.abs(x - 90) < 45 && Math.abs(y - 0) < 45) return 4;     // 下面
+            if (Math.abs(x - 0) < 45 && Math.abs(y - 90) < 45) return 5;     // 左面
+            if (Math.abs(x - 0) < 45 && Math.abs(y - 180) < 45) return 6;    // 后面
+            
+            // 如果没有精确匹配，返回最接近的面
+            return 1; // 默认返回1
+        }
+
+        function rollDice() {
+            if (isRolling) return;
+            
+            isRolling = true;
+            const button = document.getElementById('rollButton');
+            const result = document.getElementById('result');
+            
+            // 禁用按钮和隐藏结果
+            button.disabled = true;
+            button.textContent = '投掷中...';
+            result.style.display = 'none';
+            
+            // 获取骰子元素
+            const dice1 = document.getElementById('dice1');
+            const dice2 = document.getElementById('dice2');
+            const dice3 = document.getElementById('dice3');
+            
+            // 先确定要抽出的图片编号
+            // 使用全局概率配置
+            
+            // 根据概率选择等级
+            function selectGrade() {
+                const random = Math.random();
+                let cumulativeProbability = 0;
+                
+                for (const grade in globalProbabilities) {
+                    cumulativeProbability += globalProbabilities[grade];
+                    if (random <= cumulativeProbability) {
+                        return grade;
+                    }
+                }
+                // 如果没有选中任何等级（概率和不为1的情况），默认返回F
+                return 'F';
+            }
+            
+            // 在指定等级的列表中随机选择一个图片编号
+            function selectCardFromGrade(grade) {
+                const list = cardLists[grade];
+                if (list.length === 0) {
+                    // 如果列表为空，返回默认值
+                    return 128;
+                }
+                const randomIndex = Math.floor(Math.random() * list.length);
+                return list[randomIndex];
+            }
+            
+            // 选择图片编号
+            const selectedGrade = selectGrade();
+            const card = selectCardFromGrade(selectedGrade);
+            
+            // 逆向计算三个骰子的结果
+            // 需要满足：result1 * 36 + result2 * 6 + result3 - 42 = card
+            // 即：result1 * 36 + result2 * 6 + result3 = card + 42
+            const target = card + 42;
+            
+            // 逆向计算骰子结果
+            let result1, result2, result3;
+            
+            // 从最大值开始尝试，确保找到有效组合
+            for (result1 = 6; result1 >= 1; result1--) {
+                for (result2 = 6; result2 >= 1; result2--) {
+                    result3 = target - result1 * 36 - result2 * 6;
+                    if (result3 >= 1 && result3 <= 6) {
+                        // 找到有效组合，跳出循环
+                        break;
+                    }
+                }
+                if (result3 >= 1 && result3 <= 6) {
+                    break;
+                }
+            }
+            
+            // 验证计算结果
+            const calculationResult = result1 * 36 + result2 * 6 + result3 - 42;
+            
+            // 获取对应的精确角度
+            const targetRotation1 = diceRotations[result1];
+            const targetRotation2 = diceRotations[result2];
+            const targetRotation3 = diceRotations[result3];
+            
+            // 计算动画的最终角度（多圈旋转后停在目标位置）
+            const finalRotation1 = {
+                x: 1800 + targetRotation1.x, // 5圈 + 目标角度
+                y: 1800 + targetRotation1.y
+            };
+            const finalRotation2 = {
+                x: 2700 + targetRotation2.x, // 7.5圈 + 目标角度
+                y: 2700 + targetRotation2.y
+            };
+            const finalRotation3 = {
+                x: 3600 + targetRotation3.x, // 10圈 + 目标角度
+                y: 3600 + targetRotation3.y
+            };
+            
+            // 动态创建CSS动画，模拟骰子撞击反弹效果
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes rollDice1Final {
+                    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+                    
+                    /* 第一段：向右下旋转 */
+                    12% { transform: rotateX(90deg) rotateY(135deg) rotateZ(45deg) scale(1.1); }
+                    
+                    /* 撞击1：瞬间改变方向到左上，同时压缩 */
+                    12.1% { transform: rotateX(100deg) rotateY(60deg) rotateZ(190deg) scale(0.9); }
+                    28% { transform: rotateX(270deg) rotateY(45deg) rotateZ(225deg) scale(1.05); }
+                    
+                    /* 撞击2：瞬间改变方向到右前 */
+                    28.1% { transform: rotateX(280deg) rotateY(290deg) rotateZ(150deg) scale(0.95); }
+                    45% { transform: rotateX(450deg) rotateY(315deg) rotateZ(135deg) scale(1.02); }
+                    
+                    /* 撞击3：瞬间改变方向到左后 */
+                    45.1% { transform: rotateX(460deg) rotateY(150deg) rotateZ(370deg) scale(0.92); }
+                    62% { transform: rotateX(720deg) rotateY(135deg) rotateZ(405deg) scale(0.98); }
+                    
+                    /* 撞击4：瞬间改变方向，最后一次大幅旋转 */
+                    62.1% { transform: rotateX(730deg) rotateY(550deg) rotateZ(775deg) scale(0.88); }
+                    82% { transform: rotateX(1260deg) rotateY(585deg) rotateZ(810deg) scale(1.05); }
+                    
+                    /* 最终减速停止 */
+                    82.1% { transform: rotateX(1270deg) rotateY(1300deg) rotateZ(1300deg) scale(0.95); }
+                    92% { transform: rotateX(1620deg) rotateY(1350deg) rotateZ(1350deg) scale(1.01); }
+                    96% { transform: rotateX(1710deg) rotateY(1620deg) rotateZ(1620deg) scale(1.0); }
+                    98% { transform: rotateX(1755deg) rotateY(1710deg) rotateZ(1710deg) scale(1.0); }
+                    100% { transform: rotateX(${finalRotation1.x}deg) rotateY(${finalRotation1.y}deg) rotateZ(1800deg) scale(1); }
+                }
+                
+                @keyframes rollDice2Final {
+                    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+                    
+                    /* 第一段：向左前旋转（随意角度） */
+                    18% { transform: rotateX(174deg) rotateY(97deg) rotateZ(139deg) scale(1.08); }
+                    
+                    /* 撞击1：瞬间改变方向到右下（完全不规则角度） */
+                    18.1% { transform: rotateX(186deg) rotateY(234deg) rotateZ(70deg) scale(0.92); }
+                    32% { transform: rotateX(342deg) rotateY(279deg) rotateZ(54deg) scale(1.12); }
+                    
+                    /* 撞击2：瞬间改变方向到左上（避开90度倍数） */
+                    32.1% { transform: rotateX(355deg) rotateY(119deg) rotateZ(282deg) scale(0.88); }
+                    50% { transform: rotateX(616deg) rotateY(99deg) rotateZ(324deg) scale(1.06); }
+                    
+                    /* 撞击3：瞬间改变方向到右前（更自然的角度） */
+                    50.1% { transform: rotateX(634deg) rotateY(372deg) rotateZ(207deg) scale(0.94); }
+                    64% { transform: rotateX(895deg) rotateY(412deg) rotateZ(186deg) scale(0.96); }
+                    
+                    /* 撞击4：瞬间改变方向到左后（完全随机角度） */
+                    64.1% { transform: rotateX(912deg) rotateY(255deg) rotateZ(594deg) scale(0.9); }
+                    78% { transform: rotateX(1426deg) rotateY(232deg) rotateZ(640deg) scale(1.08); }
+                    
+                    /* 撞击5：瞬间改变方向，最终旋转段（避开规整角度） */
+                    78.1% { transform: rotateX(1444deg) rotateY(954deg) rotateZ(1237deg) scale(0.86); }
+                    88% { transform: rotateX(2149deg) rotateY(999deg) rotateZ(1270deg) scale(1.04); }
+                    
+                    /* 最终减速停止（保持不规则性直到最后） */
+                    88.1% { transform: rotateX(2166deg) rotateY(1759deg) rotateZ(1849deg) scale(0.96); }
+                    94% { transform: rotateX(2427deg) rotateY(1812deg) rotateZ(1896deg) scale(1.02); }
+                    97% { transform: rotateX(2562deg) rotateY(2169deg) rotateZ(2302deg) scale(1.01); }
+                    99% { transform: rotateX(2629deg) rotateY(2439deg) rotateZ(2574deg) scale(1.0); }
+                    100% { transform: rotateX(${finalRotation2.x}deg) rotateY(${finalRotation2.y}deg) rotateZ(2700deg) scale(1); }
+                }
+                
+                @keyframes rollDice3Final {
+                    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+                    
+                    /* 第一段：向右上旋转 */
+                    8% { transform: rotateX(135deg) rotateY(180deg) rotateZ(90deg) scale(1.15); }
+                    
+                    /* 撞击1：瞬间改变方向到左下 */
+                    8.1% { transform: rotateX(145deg) rotateY(65deg) rotateZ(240deg) scale(0.85); }
+                    21% { transform: rotateX(405deg) rotateY(45deg) rotateZ(270deg) scale(1.18); }
+                    
+                    /* 撞击2：瞬间改变方向到右前 */
+                    21.1% { transform: rotateX(415deg) rotateY(330deg) rotateZ(155deg) scale(0.82); }
+                    35% { transform: rotateX(720deg) rotateY(360deg) rotateZ(135deg) scale(1.14); }
+                    
+                    /* 撞击3：瞬间改变方向到左上 */
+                    35.1% { transform: rotateX(730deg) rotateY(200deg) rotateZ(420deg) scale(0.86); }
+                    47% { transform: rotateX(1080deg) rotateY(180deg) rotateZ(450deg) scale(1.1); }
+                    
+                    /* 撞击4：瞬间改变方向到右下 */
+                    47.1% { transform: rotateX(1090deg) rotateY(510deg) rotateZ(335deg) scale(0.9); }
+                    58% { transform: rotateX(1620deg) rotateY(540deg) rotateZ(315deg) scale(1.06); }
+                    
+                    /* 撞击5：瞬间改变方向到左前 */
+                    58.1% { transform: rotateX(1630deg) rotateY(380deg) rotateZ(690deg) scale(0.94); }
+                    68% { transform: rotateX(2160deg) rotateY(360deg) rotateZ(720deg) scale(1.02); }
+                    
+                    /* 撞击6：瞬间改变方向，最终大幅旋转 */
+                    68.1% { transform: rotateX(2170deg) rotateY(1050deg) rotateZ(1320deg) scale(0.88); }
+                    79% { transform: rotateX(2880deg) rotateY(1080deg) rotateZ(1350deg) scale(1.08); }
+                    
+                    /* 最终减速停止 */
+                    79.1% { transform: rotateX(2890deg) rotateY(2100deg) rotateZ(2290deg) scale(0.92); }
+                    86% { transform: rotateX(3240deg) rotateY(2160deg) rotateZ(2340deg) scale(1.04); }
+                    91% { transform: rotateX(3420deg) rotateY(2700deg) rotateZ(2880deg) scale(1.02); }
+                    95% { transform: rotateX(3510deg) rotateY(3060deg) rotateZ(3240deg) scale(1.01); }
+                    98% { transform: rotateX(3555deg) rotateY(3330deg) rotateZ(3420deg) scale(1.0); }
+                    100% { transform: rotateX(${finalRotation3.x}deg) rotateY(${finalRotation3.y}deg) rotateZ(3600deg) scale(1); }
+                }
+                
+                .dice.rolling1Final { animation: rollDice1Final 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+                .dice.rolling2Final { animation: rollDice2Final 3s cubic-bezier(0.19, 1, 0.22, 1) forwards; }
+                .dice.rolling3Final { animation: rollDice3Final 3.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+            `;
+            document.head.appendChild(style);
+            
+            // 添加不同步的滚动动画
+            dice1.classList.add('rolling1Final');
+            dice2.classList.add('rolling2Final');
+            dice3.classList.add('rolling3Final');
+            
+            // 在最长动画结束后显示结果（3.5秒）
+            setTimeout(() => {
+                // 移除动画类
+                dice1.classList.remove('rolling1Final');
+                dice2.classList.remove('rolling2Final');
+                dice3.classList.remove('rolling3Final');
+                
+                // 移除动态样式
+                document.head.removeChild(style);
+                
+                // 设置最终的精确角度，确保显示正确的面
+                dice1.style.transform = `rotateX(${targetRotation1.x}deg) rotateY(${targetRotation1.y}deg)`;
+                dice2.style.transform = `rotateX(${targetRotation2.x}deg) rotateY(${targetRotation2.y}deg)`;
+                dice3.style.transform = `rotateX(${targetRotation3.x}deg) rotateY(${targetRotation3.y}deg)`;
+                
+                // 计算最终数字
+                const calculationResult = result1 * 36 + result2 * 6 + result3 - 42;
+                
+                // 由于预先保证了算式结果在[1,128]区间内，直接使用计算结果
+                const finalDisplayResult = calculationResult;
+                
+                // 计算图片编号：使用第三行显示的最终结果
+                const imageNumber = finalDisplayResult;
+                
+                // 显示结果
+                document.getElementById('result1').textContent = result1;
+                document.getElementById('result2').textContent = result2;
+                document.getElementById('result3').textContent = result3;
+                document.getElementById('calculationFormula').textContent = `${result1} × 36 + ${result2} × 6 + ${result3} - 42 = ${calculationResult}`;
+                document.getElementById('finalResult').textContent = `最终结果： ${finalDisplayResult}`;
+                
+                // 延迟显示结果增加戏剧效果
+                setTimeout(() => {
+                    result.style.display = 'block';
+                    result.style.animation = 'fadeIn 0.5s ease-in';
+                    
+                    // 再延迟1秒后显示图片弹窗
+                    setTimeout(() => {
+                        showImageModal(imageNumber);
+                    }, 1000);
+                }, 500);
+                
+                // 恢复按钮
+                button.disabled = false;
+                button.textContent = '开始投掷';
+                isRolling = false;
+                
+            }, 3500);
+        }
+
+        // 添加淡入动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 键盘支持
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && !isRolling) {
+                event.preventDefault();
+                rollDice();
+            } else if (event.code === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        // 初始化骰子位置
+        document.addEventListener('DOMContentLoaded', function() {
+            const dice1 = document.getElementById('dice1');
+            const dice2 = document.getElementById('dice2');
+            const dice3 = document.getElementById('dice3');
+            
+            // 设置初始显示为1点
+            dice1.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            dice2.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            dice3.style.transform = 'rotateX(0deg) rotateY(0deg)';
+        });
+    </script>
+</body>
+</html>
