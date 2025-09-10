@@ -323,24 +323,30 @@
         /* 设置按钮样式 */
         .settings-button {
             position: fixed;
-            top: 2rem;
+            bottom: 2rem;
             left: 2rem;
-            padding: 0.8rem 1.2rem;
-            font-size: 1rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
+            padding: 0.8rem;
+            font-size: 1.2rem;
+            background: rgba(128, 128, 128, 0.6);
+            color: rgba(255, 255, 255, 0.7);
             border: none;
-            border-radius: 25px;
+            border-radius: 50%;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 100;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .settings-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+            background: rgba(128, 128, 128, 0.8);
+            color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .settings-button:active {
@@ -362,21 +368,28 @@
 
         .settings-content {
             position: relative;
-            width: 90%;
-            max-width: 500px;
+            width: 95%;
+            max-width: 600px;
+            max-height: 90vh;
             background: white;
-            border-radius: 15px;
-            padding: 30px;
+            border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             animation: modalAppear 0.3s ease-out;
             color: #333;
+            overflow: visible;
+        }
+
+        .settings-inner {
+            padding: 16px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .settings-title {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #333;
-            margin-bottom: 25px;
+            margin-bottom: 14px;
             text-align: center;
             background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
@@ -385,7 +398,7 @@
         }
 
         .probability-group {
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -393,17 +406,19 @@
 
         .probability-label {
             font-weight: bold;
-            min-width: 60px;
+            min-width: 45px;
             color: #555;
+            font-size: 0.85rem;
         }
 
         .probability-input {
             flex: 1;
-            margin: 0 10px;
-            padding: 8px 12px;
+            margin: 0 6px;
+            padding: 5px 8px;
             border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            height: 30px;
             transition: border-color 0.3s ease;
         }
 
@@ -416,6 +431,7 @@
         .probability-percent {
             color: #888;
             min-width: 20px;
+            font-size: 0.9rem;
         }
 
         .calculated-f {
@@ -426,17 +442,17 @@
 
         .buttons-container {
             display: flex;
-            gap: 15px;
+            gap: 10px;
             justify-content: center;
-            margin-top: 25px;
+            margin-top: 14px;
         }
 
         .save-button, .cancel-button {
-            padding: 10px 20px;
-            font-size: 1rem;
+            padding: 7px 14px;
+            font-size: 0.85rem;
             font-weight: bold;
             border: none;
-            border-radius: 25px;
+            border-radius: 18px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -465,10 +481,163 @@
 
         .error-message {
             color: #f44336;
-            font-size: 0.9rem;
-            margin-top: 10px;
+            font-size: 0.8rem;
+            margin-top: 8px;
             text-align: center;
             font-weight: bold;
+        }
+
+        /* 密码输入弹窗样式 */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .password-content {
+            position: relative;
+            width: 90%;
+            max-width: 350px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: modalAppear 0.3s ease-out;
+            color: #333;
+        }
+
+        .password-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .password-input-group {
+            margin-bottom: 15px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .password-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .password-submit, .password-cancel {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .password-submit {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .password-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+
+        .password-cancel {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .password-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.6);
+        }
+
+        /* 修改密码区域样式 */
+        .password-change-section {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+
+        .password-change-title {
+            font-size: 1.0rem;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .password-change-group {
+            margin-bottom: 8px;
+        }
+
+        .password-change-label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.8rem;
+        }
+
+        .password-change-input {
+            width: 100%;
+            padding: 5px 8px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            height: 30px;
+            transition: border-color 0.3s ease;
+        }
+
+        .password-change-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .change-password-button {
+            background: linear-gradient(45deg, #ff9800, #f57c00);
+            color: white;
+            padding: 7px 14px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 6px;
+            font-size: 0.85rem;
+            height: 32px;
+        }
+
+        .change-password-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.6);
         }
 
         /* 图片弹窗样式 */
@@ -522,8 +691,8 @@
 
         .close-button {
             position: absolute;
-            top: -10px;
-            right: -10px;
+            top: -15px;
+            right: -15px;
             width: 40px;
             height: 40px;
             border: none;
@@ -538,6 +707,7 @@
             align-items: center;
             box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4);
             transition: all 0.2s ease;
+            z-index: 10;
         }
 
         .close-button:hover {
@@ -707,7 +877,7 @@
 </head>
 <body>
     <!-- 设置按钮 -->
-    <button class="settings-button" onclick="openSettingsModal()">⚙️ 设置</button>
+    <button class="settings-button" onclick="openSettingsModal()">⚙️</button>
     
     <div class="container">
         <h1>🎲 抽奖 🎲</h1>
@@ -863,12 +1033,13 @@
         <div class="modal-overlay" onclick="closeSettingsModal()"></div>
         <div class="settings-content">
             <button class="close-button" onclick="closeSettingsModal()">×</button>
-            <div class="settings-title">设置</div>
+            <div class="settings-inner">
+                <div class="settings-title">设置</div>
             
             <div class="probability-group">
                 <label class="probability-label">A+:</label>
                 <input type="number" class="probability-input" id="prob-a-plus" min="0" max="1" step="0.001" placeholder="0.01">
-                
+
             </div>
             
             <div class="probability-group">
@@ -913,11 +1084,59 @@
                 <button class="save-button" onclick="saveProbabilities()">保存</button>
                 <button class="cancel-button" onclick="closeSettingsModal()">取消</button>
             </div>
+            
+            <!-- 修改密码区域 -->
+            <div class="password-change-section">
+                <div class="password-change-title">修改密码</div>
+                
+                <div class="password-change-group">
+                    <label class="password-change-label">当前密码:</label>
+                    <input type="password" class="password-change-input" id="currentPassword" placeholder="请输入当前密码">
+                </div>
+                
+                <div class="password-change-group">
+                    <label class="password-change-label">新密码:</label>
+                    <input type="password" class="password-change-input" id="newPassword" placeholder="请输入新密码">
+                </div>
+                
+                <div class="password-change-group">
+                    <label class="password-change-label">确认新密码:</label>
+                    <input type="password" class="password-change-input" id="confirmPassword" placeholder="请再次输入新密码">
+                </div>
+                
+                <div class="error-message" id="passwordChangeErrorMessage" style="display: none;"></div>
+                
+                <button class="change-password-button" onclick="changePassword()">修改密码</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 密码输入弹窗 -->
+    <div class="password-modal" id="passwordModal" style="display: none;">
+        <div class="modal-overlay" onclick="closePasswordModal()"></div>
+        <div class="password-content">
+            <button class="close-button" onclick="closePasswordModal()">×</button>
+            <div class="password-title">请输入密码</div>
+            
+            <div class="password-input-group">
+                <input type="password" class="password-input" id="passwordInput" placeholder="请输入密码">
+            </div>
+            
+            <div class="error-message" id="passwordErrorMessage" style="display: none;"></div>
+            
+            <div class="password-buttons">
+                <button class="password-submit" onclick="verifyPassword()">确认</button>
+                <button class="password-cancel" onclick="closePasswordModal()">取消</button>
+            </div>
         </div>
     </div>
 
     <script>
         let isRolling = false;
+        
+        // 默认密码
+        let systemPassword = '114514';
 
         // 全局概率配置
         let globalProbabilities = {
@@ -951,8 +1170,48 @@
             return 'F'; // 默认返回F级
         }
 
-        // 打开设置弹窗
+        // 打开密码验证弹窗
         function openSettingsModal() {
+            const passwordModal = document.getElementById('passwordModal');
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordErrorMessage = document.getElementById('passwordErrorMessage');
+            
+            // 清空输入和错误信息
+            passwordInput.value = '';
+            passwordErrorMessage.style.display = 'none';
+            
+            // 显示密码验证弹窗
+            passwordModal.style.display = 'flex';
+            passwordInput.focus();
+        }
+
+        // 关闭密码验证弹窗
+        function closePasswordModal() {
+            const passwordModal = document.getElementById('passwordModal');
+            passwordModal.style.display = 'none';
+        }
+
+        // 验证密码
+        function verifyPassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordErrorMessage = document.getElementById('passwordErrorMessage');
+            const inputPassword = passwordInput.value;
+            
+            if (inputPassword === systemPassword) {
+                // 密码正确，关闭密码弹窗，打开设置弹窗
+                closePasswordModal();
+                openActualSettingsModal();
+            } else {
+                // 密码错误，显示错误信息
+                passwordErrorMessage.textContent = '密码错误，请重新输入';
+                passwordErrorMessage.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        // 实际打开设置弹窗
+        function openActualSettingsModal() {
             const modal = document.getElementById('settingsModal');
             
             // 填入当前概率值
@@ -965,6 +1224,12 @@
             
             // 计算并显示F级概率
             updateFProbability();
+            
+            // 清空修改密码相关的输入和错误信息
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordChangeErrorMessage').style.display = 'none';
             
             // 显示弹窗
             modal.style.display = 'flex';
@@ -1058,6 +1323,57 @@
                 
                 // 显示成功消息
                 alert('概率设置已保存！');
+                
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // 修改密码功能
+        function changePassword() {
+            const currentPasswordInput = document.getElementById('currentPassword');
+            const newPasswordInput = document.getElementById('newPassword');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const errorMessage = document.getElementById('passwordChangeErrorMessage');
+            
+            const currentPassword = currentPasswordInput.value;
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            // 清空错误信息
+            errorMessage.style.display = 'none';
+            
+            try {
+                // 验证当前密码
+                if (currentPassword !== systemPassword) {
+                    throw new Error('当前密码错误');
+                }
+                
+                // 验证新密码
+                if (!newPassword) {
+                    throw new Error('新密码不能为空');
+                }
+                
+                if (newPassword.length < 4) {
+                    throw new Error('新密码长度不能少于4位');
+                }
+                
+                // 验证确认密码
+                if (newPassword !== confirmPassword) {
+                    throw new Error('两次输入的新密码不一致');
+                }
+                
+                // 更新密码
+                systemPassword = newPassword;
+                
+                // 清空输入框
+                currentPasswordInput.value = '';
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+                
+                // 显示成功消息
+                alert('密码修改成功！');
                 
             } catch (error) {
                 errorMessage.textContent = error.message;
@@ -1402,6 +1718,14 @@
                 rollDice();
             } else if (event.code === 'Escape') {
                 closeImageModal();
+                closePasswordModal();
+                closeSettingsModal();
+            } else if (event.code === 'Enter') {
+                // 如果密码弹窗是打开的，按回车键验证密码
+                const passwordModal = document.getElementById('passwordModal');
+                if (passwordModal.style.display === 'flex') {
+                    verifyPassword();
+                }
             }
         });
 
